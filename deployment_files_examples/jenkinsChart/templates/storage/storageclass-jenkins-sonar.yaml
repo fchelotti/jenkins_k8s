@@ -1,0 +1,21 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: jenkins-{{ .Values.className }}
+provisioner: {{ .Values.classProvisioner }}
+allowVolumeExpansion: {{ .Values.classAllowVolumeExpansion }}
+parameters:
+  numberOfReplicas: {{ .Values.classNumberOfReplicas }}
+  staleReplicaTimeout: {{ .Values.classStaleReplicaTimeout }}
+  fromBackup: ""
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: sonar-{{ .Values.className }}
+provisioner: {{ .Values.classProvisioner }}
+allowVolumeExpansion: {{ .Values.classAllowVolumeExpansion }}
+parameters:
+  numberOfReplicas: {{ .Values.classNumberOfReplicas }}
+  staleReplicaTimeout: {{ .Values.classStaleReplicaTimeout }}
+  fromBackup: ""

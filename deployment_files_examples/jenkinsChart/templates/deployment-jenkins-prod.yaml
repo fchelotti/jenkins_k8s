@@ -1,0 +1,152 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jenkins
+  namespace: {{ .Values.jenkinsNamespace }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: {{ .Values.jenkinsNamespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: jenkins
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - statefulsets
+  - services
+  - replicationcontrollers
+  - replicasets
+  - podtemplates
+  - podsecuritypolicies
+  - pods
+  - pods/log
+  - pods/exec
+  - podpreset
+  - poddisruptionbudget
+  - persistentvolumes
+  - persistentvolumeclaims
+  - jobs
+  - endpoints
+  - deployments
+  - deployments/scale
+  - daemonsets
+  - cronjobs
+  - configmaps
+  - namespaces
+  - events
+  - secrets
+  verbs:
+  - create
+  - get
+  - watch
+  - delete
+  - list
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: jenkins
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jenkins
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:serviceaccounts:jenkins
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.jenkinsName }}-deployment
+  namespace: {{ .Values.jenkinsNamespace }}
+  labels:
+    app: {{ .Values.jenkinsName }}
+spec:
+  replicas: {{ .Values.jenkinsReplicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.jenkinsName }}
+  template:
+    metadata:
+      name: {{ .Values.jenkinsName }}-replicaset
+      labels:
+        app: {{ .Values.jenkinsName }}
+    spec:
+      {{- with .Values.jenkinsHostAliases }}
+      hostAliases:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.jenkinsName }}-pod
+          image: {{ .Values.jenkinsImage }}
+          {{- with .Values.jenkinsEnvs }}
+          env:
+{{ toYaml . | indent 10 }}
+          {{- end }}
+          ports:
+          -  name: http-port
+             containerPort: {{ .Values.jenkinsPort }}
+          -  name: jnlp-port
+             containerPort: {{ .Values.jenkinsWorkPort }}
+          volumeMounts:
+          - name: jenkins-volume
+            mountPath: /var/jenkins_home
+          resources:
+            requests:
+              memory: {{ .Values.jenkinsRequests.memory }}
+              cpu: {{ .Values.jenkinsRequests.cpu }}
+            limits:
+              memory: {{ .Values.jenkinsLimits.memory }}
+              cpu: {{ .Values.jenkinsLimits.cpu }}
+          livenessProbe:
+            httpGet:
+              path: "/login"
+              port: {{ .Values.jenkinsPort }}
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: "/login"
+              port: {{ .Values.jenkinsPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      imagePullSecrets:
+        - name: {{ .Values.jenkinsImagePullSecrets }}
+      nodeSelector:
+        ingress-ready: "true"
+        kubernetes.io/os: linux
+      volumes:
+        - name: jenkins-volume
+          persistentVolumeClaim:
+            claimName: jenkins-{{ .Values.pvcName }}

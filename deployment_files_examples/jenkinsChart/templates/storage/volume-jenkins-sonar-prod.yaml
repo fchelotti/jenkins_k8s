@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-{{ .Values.pvcName }}
+  namespace: {{ .Values.jenkinsNamespace }}
+spec:
+  accessModes:
+    - {{ .Values.pvcAccessMode }}
+  storageClassName: jenkins-{{ .Values.className }}
+  resources:
+    requests:
+      storage: {{ .Values.pvcSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonar-{{ .Values.pvcName }}
+  namespace: {{ .Values.jenkinsNamespace }}
+spec:
+  accessModes:
+    - {{ .Values.pvcAccessMode }}
+  storageClassName: sonar-{{ .Values.className }}
+  resources:
+    requests:
+      storage: {{ .Values.pvcSize }}

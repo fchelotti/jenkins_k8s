@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.sonarName }}-service
+  namespace: {{ .Values.jenkinsNamespace }}
+  labels:
+    app: {{ .Values.sonarName }}
+spec:
+  type: NodePort
+  ports:
+    - name: {{ .Values.sonarName }}-web
+      port: {{ .Values.sonarServicePort }}
+      targetPort: {{ .Values.sonarServicePort }}
+      nodePort: {{ .Values.sonarNodePort }}
+  selector:
+    app: {{ .Values.sonarName }}

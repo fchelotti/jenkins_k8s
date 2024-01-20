@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-prod-deployment
+  namespace: jenkins
+  labels:
+    app: jenkins-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins-prod
+  template:
+    metadata:
+      name: jenkins-prod-replicaset
+      labels:
+        app: jenkins-prod
+    spec:
+      hostAliases:
+      - ip: "192.168.200.245"
+        hostnames:
+        - "[informe a url do vcenter]"
+      containers:
+        - name: jenkins-prod-pod
+          image: fchelotti/jenkins-lts:2.401.2-latest-prod
+          env:
+            - name: no_proxy
+              value: "192.168.0.0/24, [informe a url do vcenter]"
+            - name: https_proxy
+              value: "http://10.104.244.78:8080"
+            - name: http_proxy
+              value: "http://10.104.244.78:8080"  
+          ports:
+          -  name: http-port
+             containerPort: 8080
+          -  name: jnlp-port
+             containerPort: 50000
+          volumeMounts:
+          - name: jenkins-volume
+            mountPath: /var/jenkins_home
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "2.0"
+            limits:
+              memory: "3Gi"
+              cpu: "3.0"
+          livenessProbe:
+            httpGet:
+              path: "/login"
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: "/login"
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      nodeSelector:
+        ingress-ready: "true"
+        kubernetes.io/os: linux
+      volumes:
+        - name: jenkins-volume
+          persistentVolumeClaim:
+            claimName: jenkins-volv-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-prod-service
+  namespace: jenkins
+  labels:
+    app: jenkins-prod
+spec:
+  type: NodePort
+  ports:
+    - name: jenkins-web
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+    - name: jenkins-worker
+      port: 50000
+      targetPort: 50000
+  selector:
+    app: jenkins-prod
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  namespace: jenkins
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: jenkins-prod-service
+            port:
+              number: 8080

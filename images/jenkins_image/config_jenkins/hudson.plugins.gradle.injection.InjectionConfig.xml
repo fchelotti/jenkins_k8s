@@ -1,0 +1,8 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<hudson.plugins.gradle.injection.InjectionConfig plugin="gradle@2.4">
+  <enabled>false</enabled>
+  <allowUntrusted>false</allowUntrusted>
+  <injectMavenExtension>false</injectMavenExtension>
+  <injectCcudExtension>false</injectCcudExtension>
+  <parsedInjectionVcsRepositoryPatterns/>
+</hudson.plugins.gradle.injection.InjectionConfig>

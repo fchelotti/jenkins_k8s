@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.jenkinsName }}-service
+  namespace: {{ .Values.jenkinsNamespace }}
+  labels:
+    app: {{ .Values.jenkinsName }}
+spec:
+  type: NodePort
+  ports:
+    - name: {{ .Values.jenkinsName }}-web
+      port: {{ .Values.jenkinsPort }}
+      targetPort: {{ .Values.jenkinsPort }}
+      nodePort: {{ .Values.jenkinsNodePort }}
+    - name: {{ .Values.jenkinsName }}-worker
+      port: {{ .Values.jenkinsWorkPort }}
+      targetPort: {{ .Values.jenkinsWorkPort }}
+  selector:
+    app: {{ .Values.jenkinsName }}

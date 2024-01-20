@@ -1,0 +1,86 @@
+### StorageClass ###
+className: prod-longhorn
+classProvisioner: driver.longhorn.io
+classAllowVolumeExpansion: true
+classNumberOfReplicas: "5"
+classStaleReplicaTimeout: "2880"
+
+### PersistentVolumeClaim ###
+pvcName: prod-pvc
+pvcAccessMode: ReadWriteMany
+pvcSize: 20Gi
+
+### StorageClass repo-local ###
+classLocalProvisioner: kubernetes.io/no-provisioner
+classLocalVolumeBindingMode: WaitForFirstConsumer
+
+### PersistentVolume repo-local ###
+localPvName: prod-pv
+localPvAccessMode: ReadWriteOnce
+localPvSize: 10Gi
+localPvHostPath: /repositorio
+
+### PersistentVolumeClaim repo-local ###
+localPvcAccessMode: ReadWriteOnce
+localPvcSize: 10Gi
+
+### MetalLB L2Advertisement ###
+l2Name: l2-advertisement-metallb
+l2NameSpace: metallb-system
+l2IpAddressPool: first-pool
+l2Interface: ens192
+l2NodeSelector:
+  - matchLabels:
+      kubernetes.io/hostname: hostname1
+  - matchLabels:
+      kubernetes.io/hostname: hostname2
+  - matchLabels:
+      kubernetes.io/hostname: hostname3
+
+### Sonar k8s prod values ###
+sonarName: sonar-prod
+sonarReplicas: 1
+sonarImage: fchelotti/sonar-lts:1.0.0
+sonarEnvs:
+  - name: https_proxy
+    value: "http://10.104.244.78:8080"
+  - name: http_proxy
+    value: "http://10.104.244.78:8080"
+sonarPorts:
+  -  name: sonar-port
+     containerPort: 9000
+sonarRequests:
+  memory: "2Gi"
+  cpu: "2.0"
+sonarLimits:
+  memory: "3Gi"
+  cpu: "3.0"
+sonarNodePort: 30090
+sonarServicePort: 9000
+
+### Jenkins k8s prod values ###
+jenkinsName: jenkins-prod
+jenkinsNamespace: jenkins
+jenkinsReplicas: 1
+jenkinsHostAliases:
+  - ip: "192.168.200.245"
+    hostnames:
+    - "[informe a url do vcenter]"
+jenkinsImage: "fchelotti/jenkins-lts:2.401.2-latest-prod"
+jenkinsEnvs:
+  - name: no_proxy
+    value: "192.168.0.0/24, [informe a url do vcenter]"
+  - name: https_proxy
+    value: "http://10.104.244.78:8080"
+  - name: http_proxy
+    value: "http://10.104.244.78:8080"
+jenkinsRequests:
+  memory: "2Gi"
+  cpu: "2.0"
+jenkinsLimits:
+  memory: "3Gi"
+  cpu: "3.0"
+jenkinsImagePullSecrets: secrets
+jenkinsPort: 8080
+jenkinsNodePort: 30080
+jenkinsWorkPort: 50000

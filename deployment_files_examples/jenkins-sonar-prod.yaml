@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonar-dev-deployment
+  namespace: jenkins
+  labels:
+    app: sonar-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonar-dev
+  template:
+    metadata:
+      name: sonar-dev-replicaset
+      labels:
+        app: sonar-dev
+    spec:
+      hostAliases:
+      - ip: "172.17.0.10"
+        hostnames:
+        - "sonar-dev.com"
+        - "jenkins-dev.com"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - jenkins-prod
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: sonar-dev-pod
+          image: fchelotti/sonar-lts:1.0.0
+          env:
+            - name: https_proxy
+              value: "http://10.104.244.78:8080"
+            - name: http_proxy
+              value: "http://10.104.244.78:8080"  
+          ports:
+          -  name: sonar-port
+             containerPort: 9000
+          volumeMounts:
+          - name: sonar-volume
+            mountPath: /opt/sonarqube/data
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "2"
+            limits:
+              memory: "3Gi"
+              cpu: "2.0"
+          livenessProbe:
+            httpGet:
+              path: "/sessions/new"
+              port: 9000
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: "/sessions/new"
+              port: 9000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      nodeSelector:
+        ingress-ready: "true"
+        kubernetes.io/os: linux
+      volumes:
+        - name: sonar-volume
+          persistentVolumeClaim:
+            claimName: sonar-volv-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonar-dev-service
+  namespace: jenkins
+  labels:
+    app: sonar-dev
+spec:
+  type: NodePort
+  ports:
+    - name: sonar-web
+      port: 9000
+      targetPort: 9000
+      nodePort: 30090
+  selector:
+    app: sonar-dev
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sonar-ingress
+  namespace: jenkins
+spec:
+  rules:
+  - host: sonar-dev.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: sonar-dev-service
+            port:
+              number: 9000

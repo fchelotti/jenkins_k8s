@@ -1,0 +1,21 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: jenkins-longhorn
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+parameters:
+  numberOfReplicas: "5"
+  staleReplicaTimeout: "2880"
+  fromBackup: ""
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: sonar-longhorn
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+parameters:
+  numberOfReplicas: "5"
+  staleReplicaTimeout: "2880"
+  fromBackup: ""

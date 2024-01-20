@@ -1,0 +1,28 @@
+apiVersion: v2
+name: jenkinsChart
+description: Project - Jenkins Chart
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+kubeVersion: ">=1.24.0-0"
+keywords:
+  - jenkins
+  - kubernetes
+  - helm
+
+home: https://github.com/fchelotti/jenkins_k8s/src/master/ (private)
+
+
+dependencies:
+  - name: longhorn
+    version: 1.4.1
+    repository: https://charts.longhorn.io
+
+  - name: metallb
+    version: 0.13.9
+    repository: https://metallb.github.io/metallb
+
+maintainers:
+
+  - name: Fernando Chelotti
+    email: fchelotti@gmail.com

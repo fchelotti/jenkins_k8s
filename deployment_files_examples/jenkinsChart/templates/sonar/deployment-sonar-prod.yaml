@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.sonarName }}-deployment
+  namespace: {{ .Values.jenkinsNamespace }}
+  labels:
+    app: {{ .Values.sonarName }}
+spec:
+  replicas: {{ .Values.sonarReplicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.sonarName }}
+  template:
+    metadata:
+      name: {{ .Values.sonarName }}-replicaset
+      labels:
+        app: {{ .Values.sonarName }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ .Values.jenkinsName }}
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: {{ .Values.sonarName }}-pod
+          image: {{ .Values.sonarImage }}
+          {{- with .Values.sonarEnvs }}
+          env:
+{{ toYaml . | indent 10 }}
+          {{- end }}
+          {{- with .Values.sonarPorts }}
+          ports:
+{{ toYaml . | indent 10 }}
+          {{- end }}
+          volumeMounts:
+          - name: sonar-volume
+            mountPath: /opt/sonarqube/data
+          resources:
+            requests:
+              memory: {{ .Values.sonarRequests.memory }}
+              cpu: {{ .Values.sonarRequests.cpu }}
+            limits:
+              memory: {{ .Values.sonarLimits.memory }}
+              cpu: {{ .Values.sonarLimits.cpu }}
+          livenessProbe:
+            httpGet:
+              path: "/sessions/new"
+              port: {{ .Values.sonarServicePort }}
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: "/sessions/new"
+              port: {{ .Values.sonarServicePort }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      nodeSelector:
+        ingress-ready: "true"
+        kubernetes.io/os: linux
+      volumes:
+        - name: sonar-volume
+          persistentVolumeClaim:
+            claimName: sonar-{{ .Values.pvcName }}

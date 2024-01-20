@@ -1,0 +1,17 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.sonarName }}-ingress
+  namespace: {{ .Values.jenkinsNamespace }}
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: {{ .Values.sonarName }}-service
+            port:
+              number: {{ .Values.sonarServicePort }}

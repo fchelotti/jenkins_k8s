@@ -1,0 +1,9 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<proxy>
+  <name>10.104.244.78</name>
+  <port>8080</port>
+  <userName></userName>
+  <noProxyHost></noProxyHost>
+  <secretPassword>{AQAAABAAAAAQIqpWF0AqNKhmua+ILpUeRJYYzUGVGYUCyL39FnKeZ64=}</secretPassword>
+  <testUrl></testUrl>
+</proxy>

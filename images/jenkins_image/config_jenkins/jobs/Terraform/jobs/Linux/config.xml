@@ -1,0 +1,233 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1289.vd1c337fd5354">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2125.vddb_a_44a_d605e"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2125.vddb_a_44a_d605e">
+      <jobProperties>
+        <string>org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty</string>
+        <string>jenkins.model.BuildDiscarderProperty</string>
+      </jobProperties>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+    <org.jenkinsci.plugins.workflow.multibranch.JobPropertyTrackerAction plugin="workflow-multibranch@733.v109046189126">
+      <jobPropertyDescriptors>
+        <string>hudson.model.ParametersDefinitionProperty</string>
+      </jobPropertyDescriptors>
+    </org.jenkinsci.plugins.workflow.multibranch.JobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.jira.JiraProjectProperty plugin="jira@3.9"/>
+    <com.sonyericsson.rebuild.RebuildSettings plugin="rebuild@1.34">
+      <autoRebuild>false</autoRebuild>
+      <rebuildDisabled>false</rebuildDisabled>
+    </com.sonyericsson.rebuild.RebuildSettings>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>5</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty>
+      <abortPrevious>false</abortPrevious>
+    </org.jenkinsci.plugins.workflow.job.properties.DisableConcurrentBuildsJobProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>Change</name>
+          <description>Change Name</description>
+          <defaultValue>CHG4242</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VMName</name>
+          <description>VM Name</description>
+          <defaultValue>lxpruebasSize00</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <org.biouno.unochoice.ChoiceParameter plugin="uno-choice@2.6.4">
+          <name>Env</name>
+          <description>Select the Environment from the Dropdown List</description>
+          <randomName>choice-parameter-580307083365834</randomName>
+          <visibleItemCount>1</visibleItemCount>
+          <script class="org.biouno.unochoice.model.GroovyScript">
+            <secureScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;sul_vmware&apos;,&apos;norte_vmware&apos;]</script>
+              <sandbox>true</sandbox>
+              <classpath/>
+            </secureScript>
+            <secureFallbackScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;Could not get The environemnts&apos;]</script>
+              <sandbox>false</sandbox>
+              <classpath/>
+            </secureFallbackScript>
+          </script>
+          <choiceType>PT_SINGLE_SELECT</choiceType>
+          <filterable>false</filterable>
+          <filterLength>1</filterLength>
+        </org.biouno.unochoice.ChoiceParameter>
+        <org.biouno.unochoice.CascadeChoiceParameter plugin="uno-choice@2.6.4">
+          <name>Country</name>
+          <description>Select the Country from the Dropdown List</description>
+          <randomName>choice-parameter-580307084375991</randomName>
+          <visibleItemCount>1</visibleItemCount>
+          <script class="org.biouno.unochoice.model.GroovyScript">
+            <secureScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>
+                                            if (Env.equals(&quot;sul_vmware&quot;)){
+                                                return[&quot;Brasil&quot;, &quot;Argentina&quot;, &quot;Chile&quot;]
+                                            }
+                                            else if(Env.equals(&quot;norte_vmware&quot;)){
+                                                return[&quot;Espanha&quot;, &quot;Malta&quot;, &quot;Portugal&quot;]
+                                            }
+                                            </script>
+              <sandbox>true</sandbox>
+              <classpath/>
+            </secureScript>
+            <secureFallbackScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;Could not get Environment from Env Param&apos;]</script>
+              <sandbox>false</sandbox>
+              <classpath/>
+            </secureFallbackScript>
+          </script>
+          <parameters class="linked-hash-map"/>
+          <referencedParameters>Env</referencedParameters>
+          <choiceType>PT_SINGLE_SELECT</choiceType>
+        </org.biouno.unochoice.CascadeChoiceParameter>
+        <org.biouno.unochoice.ChoiceParameter plugin="uno-choice@2.6.4">
+          <name>Dmz</name>
+          <description>Select the Size from the Dropdown List</description>
+          <randomName>choice-parameter-580307085243428</randomName>
+          <visibleItemCount>1</visibleItemCount>
+          <script class="org.biouno.unochoice.model.GroovyScript">
+            <secureScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;DMZ&apos;,&apos;NODMZ&apos;]</script>
+              <sandbox>true</sandbox>
+              <classpath/>
+            </secureScript>
+            <secureFallbackScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;Could not get Environment from Env Param&apos;]</script>
+              <sandbox>false</sandbox>
+              <classpath/>
+            </secureFallbackScript>
+          </script>
+          <choiceType>PT_SINGLE_SELECT</choiceType>
+          <filterable>false</filterable>
+          <filterLength>1</filterLength>
+        </org.biouno.unochoice.ChoiceParameter>
+        <org.biouno.unochoice.ChoiceParameter plugin="uno-choice@2.6.4">
+          <name>Size</name>
+          <description>Select the Size from the Dropdown List</description>
+          <randomName>choice-parameter-580307085819091</randomName>
+          <visibleItemCount>1</visibleItemCount>
+          <script class="org.biouno.unochoice.model.GroovyScript">
+            <secureScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;small&apos;,&apos;medium&apos;,&apos;big&apos;]</script>
+              <sandbox>true</sandbox>
+              <classpath/>
+            </secureScript>
+            <secureFallbackScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;Could not get Environment from Env Param&apos;]</script>
+              <sandbox>false</sandbox>
+              <classpath/>
+            </secureFallbackScript>
+          </script>
+          <choiceType>PT_SINGLE_SELECT</choiceType>
+          <filterable>false</filterable>
+          <filterLength>1</filterLength>
+        </org.biouno.unochoice.ChoiceParameter>
+        <org.biouno.unochoice.ChoiceParameter plugin="uno-choice@2.6.4">
+          <name>Version</name>
+          <description>Select the Version from the Dropdown List</description>
+          <randomName>choice-parameter-580307086870438</randomName>
+          <visibleItemCount>1</visibleItemCount>
+          <script class="org.biouno.unochoice.model.GroovyScript">
+            <secureScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;vRH8&apos;,&apos;vRH9&apos;]</script>
+              <sandbox>true</sandbox>
+              <classpath/>
+            </secureScript>
+            <secureFallbackScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;Could not get Environment from Env Param&apos;]</script>
+              <sandbox>false</sandbox>
+              <classpath/>
+            </secureFallbackScript>
+          </script>
+          <choiceType>PT_SINGLE_SELECT</choiceType>
+          <filterable>false</filterable>
+          <filterLength>1</filterLength>
+        </org.biouno.unochoice.ChoiceParameter>
+        <org.biouno.unochoice.ChoiceParameter plugin="uno-choice@2.6.4">
+          <name>Number</name>
+          <description>Enter the number of VMs</description>
+          <randomName>choice-parameter-580307088135094</randomName>
+          <visibleItemCount>1</visibleItemCount>
+          <script class="org.biouno.unochoice.model.GroovyScript">
+            <secureScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;1&apos;,&apos;2&apos;,&apos;3&apos;,&apos;4&apos;,&apos;5&apos;,&apos;6&apos;,&apos;7&apos;,&apos;8&apos;,&apos;9&apos;,&apos;10&apos;]</script>
+              <sandbox>true</sandbox>
+              <classpath/>
+            </secureScript>
+            <secureFallbackScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;Could not get Environment from Env Param&apos;]</script>
+              <sandbox>false</sandbox>
+              <classpath/>
+            </secureFallbackScript>
+          </script>
+          <choiceType>PT_SINGLE_SELECT</choiceType>
+          <filterable>false</filterable>
+          <filterLength>1</filterLength>
+        </org.biouno.unochoice.ChoiceParameter>
+        <org.biouno.unochoice.ChoiceParameter plugin="uno-choice@2.6.4">
+          <name>Terraform</name>
+          <description>Select the Terraform options from the Dropdown List</description>
+          <randomName>choice-parameter-580307088893124</randomName>
+          <visibleItemCount>1</visibleItemCount>
+          <script class="org.biouno.unochoice.model.GroovyScript">
+            <secureScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;plan&apos;,&apos;apply&apos;,&apos;preview-destroy&apos;,&apos;destroy&apos;]</script>
+              <sandbox>true</sandbox>
+              <classpath/>
+            </secureScript>
+            <secureFallbackScript plugin="script-security@1229.v4880b_b_e905a_6">
+              <script>return[&apos;Could not get Terraform options&apos;]</script>
+              <sandbox>false</sandbox>
+              <classpath/>
+            </secureFallbackScript>
+          </script>
+          <choiceType>PT_SINGLE_SELECT</choiceType>
+          <filterable>false</filterable>
+          <filterLength>1</filterLength>
+        </org.biouno.unochoice.ChoiceParameter>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@3653.v07ea_433c90b_4">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@5.0.0">
+      <configVersion>2</configVersion>
+      <userRemoteConfigs>
+        <hudson.plugins.git.UserRemoteConfig>
+          <url>https://github.com/fchelotti/terraform.git</url>
+          <credentialsId>bitbucket_token</credentialsId>
+        </hudson.plugins.git.UserRemoteConfig>
+      </userRemoteConfigs>
+      <branches>
+        <hudson.plugins.git.BranchSpec>
+          <name>*/master</name>
+        </hudson.plugins.git.BranchSpec>
+      </branches>
+      <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+      <submoduleCfg class="empty-list"/>
+      <extensions/>
+    </scm>
+    <scriptPath>linuxJenkinsfile</scriptPath>
+    <lightweight>true</lightweight>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

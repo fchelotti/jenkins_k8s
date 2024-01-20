@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-{{ .Values.localPvName }}
+  labels:
+    type: local
+spec:
+  storageClassName: local-{{ .Values.className }}
+  capacity:
+    storage: {{ .Values.localPvSize }}
+  accessModes:
+    - {{ .Values.localPvAccessMode }}
+  hostPath:
+    path: {{ .Values.localPvPath }}

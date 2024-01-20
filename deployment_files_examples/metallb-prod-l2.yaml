@@ -1,0 +1,17 @@
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-advertisement-metallb
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - first-pool
+  interfaces:
+  - ens224 
+  nodeSelectors:
+  - matchLabels:
+      kubernetes.io/hostname: [informe o hostname1]
+  - matchLabels:
+      kubernetes.io/hostname: [informe o hostname2]
+  - matchLabels:
+      kubernetes.io/hostname: [informe o hostname3]
